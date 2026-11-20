@@ -131,6 +131,7 @@ const VOICE_PREFS_KEY = 'worldmap.voice';
 const voiceSelect = document.getElementById('opt-voice-name');
 const pitchInput = document.getElementById('opt-pitch');
 const rateInput = document.getElementById('opt-rate');
+const sayCapitalInput = document.getElementById('opt-say-capital');
 let voices = [];
 
 let voicePrefs = {};
@@ -138,9 +139,10 @@ try { voicePrefs = JSON.parse(localStorage.getItem(VOICE_PREFS_KEY)) || {}; } ca
 if (voicePrefs.pitch) pitchInput.value = voicePrefs.pitch;
 if (voicePrefs.rate) rateInput.value = voicePrefs.rate;
 if (voicePrefs.enabled === false) optVoice.checked = false;
+if (voicePrefs.sayCapital === false) sayCapitalInput.checked = false;
 
 function saveVoicePrefs() {
-  voicePrefs = { voice: voiceSelect.value, pitch: pitchInput.value, rate: rateInput.value, enabled: optVoice.checked };
+  voicePrefs = { voice: voiceSelect.value, pitch: pitchInput.value, rate: rateInput.value, enabled: optVoice.checked, sayCapital: sayCapitalInput.checked };
   try { localStorage.setItem(VOICE_PREFS_KEY, JSON.stringify(voicePrefs)); } catch {}
   optionsEl.classList.toggle('voice-off', !optVoice.checked);
 }
@@ -170,6 +172,7 @@ function populateVoices() {
 }
 
 function speak(info) {
+  if (!sayCapitalInput.checked) return speakText(`${info.name}.`);
   speakText(`${info.name}. ${info.capital.length ? `The capital is ${info.capital.join(' and ')}.` : 'It has no listed capital.'}`);
 }
 
@@ -191,7 +194,7 @@ if (canSpeak) {
   populateVoices();
   speechSynthesis.addEventListener('voiceschanged', populateVoices);
 }
-[voiceSelect, pitchInput, rateInput, optVoice].forEach(el => el.addEventListener('change', saveVoicePrefs));
+[voiceSelect, pitchInput, rateInput, optVoice, sayCapitalInput].forEach(el => el.addEventListener('change', saveVoicePrefs));
 voiceSelect.addEventListener('change', () => speakText('Hello! Let’s explore the world.'));
 document.getElementById('voice-test').addEventListener('click', () =>
   currentInfo ? speak(currentInfo) : speakText('Hello! Let’s explore the world.'));
